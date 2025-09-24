@@ -1,0 +1,23 @@
+[project]
+name = "stoik-test"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "liaminec",email = "liaminec@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "flask (>=3.1.2,<4.0.0)",
+    "sqlalchemy (>=2.0.43,<3.0.0)",
+    "flask-pydantic (>=0.13.2,<0.14.0)",
+    "flask-sqlalchemy (>=3.1.1,<4.0.0)",
+    "pytest (>=8.4.2,<9.0.0)",
+    "pre-commit (>=4.3.0,<5.0.0)",
+    "pylint (>=3.3.8,<4.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
