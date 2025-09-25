@@ -2,6 +2,8 @@ from urllib.parse import urlparse
 
 from pydantic import BaseModel, model_validator, field_validator
 
+BLACKLIST = ["localhost:5000", "0.0.0.0:5000", "127.0.0.1:5000"]
+
 
 class UrlCreate(BaseModel):
     url: str
@@ -13,6 +15,8 @@ class UrlCreate(BaseModel):
         is_valid = all([result.scheme, result.netloc])
         if not is_valid:
             raise ValueError("The url is invalid")
+        if result.netloc in BLACKLIST:
+            raise ValueError("The url is blacklisted")
         return value
 
 
