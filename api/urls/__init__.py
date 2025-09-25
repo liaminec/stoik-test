@@ -1,3 +1,3 @@
 from flask import Blueprint
 
-urls_bp = Blueprint("user", "app", url_prefix="/urls")
+urls_bp = Blueprint("urls", __name__)
