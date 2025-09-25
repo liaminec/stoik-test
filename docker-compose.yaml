@@ -1,0 +1,63 @@
+services:
+  api:
+    user: "1001:1001"
+    build:
+      context: api
+      dockerfile: Dockerfile
+    env_file:
+      - ./api/.env
+    depends_on:
+      - postgres
+    profiles:
+      - local
+    volumes:
+      - api:/home/app
+    ports:
+      - "5000:5000"
+    command: bash -c "python -m flask --app flaskr init-db && python -m flask --app app.py run --host=0.0.0.0"
+
+  postgres:
+    image: postgres:16.1
+    restart: always
+    profiles:
+      - local
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: pwd
+      POSTGRES_USER: user
+      POSTGRES_DB: db
+    ports:
+      - 5432:5432
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+  test-postgres:
+    image: postgres:16.1
+    restart: always
+    profiles:
+      - test
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: pwd
+      POSTGRES_USER: user
+      POSTGRES_DB: db
+    volumes:
+      - db-data:/var/lib/postgresql/test/data
+
+  test:
+    user: "1001:1001"
+    build:
+      context: api
+    env_file:
+      - ./api/.env
+    depends_on:
+      - test-postgres
+    profiles:
+      - test
+    command:
+      - python -m flask init-db
+      - pytest
+
+volumes:
+  db-data:
+  api:
