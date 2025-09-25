@@ -202,22 +202,6 @@ async = ["asgiref (>=3.2)"]
 dotenv = ["python-dotenv"]
 
 [[package]]
-name = "flask-pydantic"
-version = "0.13.2"
-description = "Flask extension for integration with Pydantic library."
-optional = false
-python-versions = ">=3.7"
-groups = ["main"]
-files = [
-    {file = "flask_pydantic-0.13.2-py3-none-any.whl", hash = "sha256:7939855451ab64e3676122406b27177518e91ff12f655ac6d918d39c7834360c"},
-    {file = "flask_pydantic-0.13.2.tar.gz", hash = "sha256:ac6a4cb58a5d1ad6b99ce9c936f059101042800ed582360c9326b32867a9fdd3"},
-]
-
-[package.dependencies]
-Flask = "*"
-pydantic = ">=2.0"
-
-[[package]]
 name = "flask-sqlalchemy"
 version = "3.1.1"
 description = "Add SQLAlchemy support to your Flask application."
@@ -232,21 +216,6 @@ files = [
 [package.dependencies]
 flask = ">=2.2.5"
 sqlalchemy = ">=2.0.16"
-
-[[package]]
-name = "freezegun"
-version = "1.5.5"
-description = "Let your Python tests travel through time"
-optional = false
-python-versions = ">=3.8"
-groups = ["main"]
-files = [
-    {file = "freezegun-1.5.5-py3-none-any.whl", hash = "sha256:cd557f4a75cf074e84bc374249b9dd491eaeacd61376b9eb3c423282211619d2"},
-    {file = "freezegun-1.5.5.tar.gz", hash = "sha256:ac7742a6cc6c25a2c35e9292dfd554b897b517d2dec26891a2e8debf205cb94a"},
-]
-
-[package.dependencies]
-python-dateutil = ">=2.7"
 
 [[package]]
 name = "greenlet"
@@ -825,21 +794,6 @@ tomli = {version = ">=1", markers = "python_version < \"3.11\""}
 dev = ["argcomplete", "attrs (>=19.2)", "hypothesis (>=3.56)", "mock", "requests", "setuptools", "xmlschema"]
 
 [[package]]
-name = "python-dateutil"
-version = "2.9.0.post0"
-description = "Extensions to the standard Python datetime module"
-optional = false
-python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,>=2.7"
-groups = ["main"]
-files = [
-    {file = "python-dateutil-2.9.0.post0.tar.gz", hash = "sha256:37dd54208da7e1cd875388217d5e00ebd4179249f90fb72437e91a35459a0ad3"},
-    {file = "python_dateutil-2.9.0.post0-py2.py3-none-any.whl", hash = "sha256:a8b2bc7bffae282281c8140a97d3aa9c14da0b136dfe83f850eea9a5f7470427"},
-]
-
-[package.dependencies]
-six = ">=1.5"
-
-[[package]]
 name = "pyyaml"
 version = "6.0.2"
 description = "YAML parser and emitter for Python"
@@ -1317,4 +1271,4 @@ watchdog = ["watchdog (>=2.3)"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.10"
-content-hash = "b7d67c2a3110f772d3baf9eabe5f982591aa73df01f8c2ad3d0fb3564caa4834"
+content-hash = "67842546d0178f51860bd72f4a55db8719e9266bf7d95844ec4806b55ccd8e61"
