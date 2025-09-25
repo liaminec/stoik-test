@@ -1,3 +1,4 @@
+# pylint: disable=line-too-long
 from contextlib import closing
 
 from flask import current_app, Response, redirect, request
@@ -35,6 +36,16 @@ def create():
                 short_path:
                     type: string
                     example: 'A1b2C3d'
+      200:
+        description: A valid short path already exists.
+        schema:
+            type: object
+            properties:
+                short_path:
+                    type: string
+                    example: 'A1b2C3d'
+      400:
+        description: The short path to URL association could not be made, either because the url is malformed or blacklisted, the generated short path does not fulfill the requirements, or all the attempts at generating a short path gave one that is already taken.
     """
     logger = current_app.logger
     body = request.get_json()
@@ -118,8 +129,12 @@ def path(short_path: str):
             type: string
             example: 'A1b2C3d'
     responses:
-      302:
+      301:
         description: Redirection to the URL
+      404:
+        description: The short path is not linked to a URL, or is older than 90 days.
+      400:
+        description: The data regarding the short path is inconsistent
     """
     logger = current_app.logger
 
@@ -156,4 +171,4 @@ def path(short_path: str):
         )
         conn.execute(update_query, {"clicks": clicks, "short_path": short_path})
         conn.commit()
-    return redirect(url, code=302)
+    return redirect(url, code=301)
