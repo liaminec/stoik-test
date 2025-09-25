@@ -28,7 +28,19 @@ The dependencies are managed using poetry, there is pre-commit to ensure some de
 dockerized to make the launch easy.
 
 
-## 1. Launching the project
+## 2. Database schema
+
+The API is very simple, it has only one table called ``urls``
+
+Field  | Type  |  Constraint  |
+------------- | -------------  | -------------
+id  | SERIAL  |  PRIMARY KEY
+short_path  | VARCHAR(7)  | UNIQUE NOT NULL
+short_path  | VARCHAR(7)  |  NOT NULL
+created_at  |  TIMESTAMP  |  DEFAULT NOW
+clicks  |  INTEGER  |  DEFAULT 0
+
+## 3. Launching the project
 
 Prerequisites: Docker and Docker Compose V2
 
