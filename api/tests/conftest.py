@@ -18,4 +18,12 @@ def app_fixture():
 
     yield app
 
-    db.engine.execute("DELETE FROM urls")
+    conn = db.engine.connect()
+    conn.execute("DELETE FROM urls")
+    conn.commit()
+    conn.close()
+
+
+@pytest.fixture()
+def client(app):
+    return app.test_client()
