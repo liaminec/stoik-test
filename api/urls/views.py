@@ -3,7 +3,7 @@ from contextlib import closing
 from flask import current_app, Response, redirect
 from flask_pydantic import validate
 from pydantic import ValidationError
-from sqlalchemy import text, Connection
+from sqlalchemy import text, Connection, TextClause
 from sqlalchemy.exc import IntegrityError, NoResultFound
 
 from flaskr.db import get_db
@@ -11,13 +11,27 @@ from urls import urls_bp
 from urls.models import UrlCreate, ShortPath
 from urls.utils import short_path_generator
 
-logger = current_app.logger
+
+def _create(dbconn: Connection, insert_query: TextClause, url: str) -> tuple[bool, str]:
+    short_path = short_path_generator()
+    try:
+        ShortPath(short_path=short_path)
+    except ValidationError as valerr:
+        return False, str(valerr)
+    try:
+        dbconn.execute(insert_query, {"short_path": short_path, "url": url})
+    except IntegrityError as integ_err:
+        return False, str(integ_err)
+    dbconn.commit()
+    return True, short_path
 
 
-@urls_bp.post("/")
+@urls_bp.route("/", methods=["POST"])
 @validate()
-def create(data: UrlCreate):
-    url = data.link
+def create(body: UrlCreate):
+    logger = current_app.logger
+
+    url = body.url
     check_query = text(
         """
         SELECT short_path
@@ -29,9 +43,7 @@ def create(data: UrlCreate):
     existing_result = ""
     with closing(get_db()) as conn:
         try:
-            existing_result = conn.engine.execute(
-                check_query, {"url": url}
-            ).scalar_one()
+            existing_result = conn.execute(check_query, {"url": url}).scalar_one()
         except NoResultFound:
             logger.info("No short path exists for the url %s", url)
     if existing_result:
@@ -43,24 +55,12 @@ def create(data: UrlCreate):
         """
     )
 
-    def _create(dbconn: Connection) -> tuple[bool, str]:
-        short_path = short_path_generator()
-        try:
-            ShortPath(short_path=short_path)
-        except ValidationError as valerr:
-            return False, str(valerr)
-        try:
-            dbconn.engine.execute(insert_query, {"short_path": short_path, "url": url})
-        except IntegrityError as integ_err:
-            return False, str(integ_err)
-        return True, short_path
-
     create_success = False
     output = ""
     fail_counter = 0
     with closing(get_db()) as conn:
         while not create_success and fail_counter <= 3:
-            create_success, output = _create(conn)
+            create_success, output = _create(conn, insert_query, url)
             logger.warning("Could not generate short URL, cause: %s", output)
             fail_counter += 1
     if not create_success:
@@ -73,8 +73,10 @@ def create(data: UrlCreate):
     return Response({"short_path": output}, status=201)
 
 
-@urls_bp.get("/<str: short_path>")
+@urls_bp.route("/<string:short_path>", methods=["GET"])
 def path(short_path: str):
+    logger = current_app.logger
+
     select_query = text(
         """
         SELECT url, clicks
@@ -85,7 +87,7 @@ def path(short_path: str):
     )
     try:
         with closing(get_db()) as conn:
-            url, clicks = conn.engine.execute(
+            url, clicks = conn.execute(
                 select_query, {"short_path": short_path}
             ).scalar_one()
     except NoResultFound as nores:
@@ -93,7 +95,7 @@ def path(short_path: str):
             "No url could be found for short path %(short_path)s, reason: %(err)s"
             % {"short_path": short_path, "err": str(nores)}
         )
-        return Response({"message": "Not found"}, status=404)
+        return {"message": "Not found"}, 404
     clicks += 1
     update_query = text(
         """
@@ -103,5 +105,6 @@ def path(short_path: str):
         """
     )
     with closing(get_db()) as conn:
-        conn.engine.execute(update_query, {"clicks": clicks, "short_path": short_path})
+        conn.execute(update_query, {"clicks": clicks, "short_path": short_path})
+        conn.commit()
     return redirect(url, code=302)
