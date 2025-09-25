@@ -1,5 +1,6 @@
 from logging.config import dictConfig
 
+from flasgger import Swagger
 from flask import Flask
 from flaskr import db
 from urls import urls_bp
@@ -26,6 +27,7 @@ dictConfig(
 
 def create_app() -> Flask:
     app = Flask("app")
+    Swagger(app)
     db.init_app(app)
     import urls.views  # pylint: disable=unused-import,import-outside-toplevel
 
