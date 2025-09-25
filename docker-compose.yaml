@@ -37,27 +37,30 @@ services:
     profiles:
       - test
     environment:
-      POSTGRES_HOST: postgres
+      POSTGRES_HOST: test-postgres
       POSTGRES_PASSWORD: pwd
       POSTGRES_USER: user
       POSTGRES_DB: db
     volumes:
-      - db-data:/var/lib/postgresql/test/data
+      - db-data-test:/var/lib/postgresql/test/data
 
   test:
     user: "1001:1001"
     build:
       context: api
-    env_file:
-      - ./api/.env
-    depends_on:
-      - test-postgres
+      dockerfile: Dockerfile
     profiles:
       - test
-    command:
-      - python -m flask init-db
-      - pytest
+    env_file:
+      - ./api/.env.test
+    volumes:
+      - test:/home/app
+    depends_on:
+      - test-postgres
+    command: bash -c "python -m flask init-db && python -m pytest"
 
 volumes:
   db-data:
+  db-data-test:
   api:
+  test:
