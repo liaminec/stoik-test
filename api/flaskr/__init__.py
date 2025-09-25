@@ -27,5 +27,7 @@ dictConfig(
 def create_app() -> Flask:
     app = Flask("app")
     db.init_app(app)
-    app.register_blueprint(urls_bp)
+    import urls.views  # pylint: disable=unused-import,import-outside-toplevel
+
+    app.register_blueprint(urls_bp, url_prefix="/urls")
     return app

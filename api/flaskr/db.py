@@ -2,7 +2,7 @@ import os
 
 import click
 from flask import g, current_app, Flask
-from sqlalchemy import create_engine, Connection, Row
+from sqlalchemy import create_engine, Connection, Row, text
 
 
 def get_db() -> Connection:
@@ -15,7 +15,7 @@ def get_db() -> Connection:
     return g.db
 
 
-def close_db() -> None:
+def close_db(e=None) -> None:  # pylint: disable=unused-argument
     db = g.pop("db", None)
     if db:
         db.close()
@@ -24,8 +24,9 @@ def close_db() -> None:
 def init_db():
     db = get_db()
 
-    with current_app.open_resource("schema.sql") as f:
-        db.execute(f.read().decode("utf8"))
+    with current_app.open_resource("flaskr/schema.sql") as f:
+        db.execute(text(f.read().decode("utf8")))
+        db.commit()
 
 
 @click.command("init-db")
