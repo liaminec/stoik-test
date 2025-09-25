@@ -34,10 +34,23 @@ Prerequisites: Docker and Docker Compose V2
 
 To launch the app
 
-``docker-compose --profile local up``
+```
+docker-compose --profile local build
+docker-compose --profile local up
+```
 
 Coming soon: Swagger (waiting for Docker to be fixed)
 
 To launch the tests
 
-``docker-compose --profile test up``
+```
+docker-compose --profile test build
+docker-compose --profile test up
+```
+
+
+## 2. Swagger
+
+A swagger was generated using the flaggser package,
+to see it go to
+``localhost:5000/apidocs``
