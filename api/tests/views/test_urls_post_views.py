@@ -52,6 +52,25 @@ def test_create_malformed_url(app: Flask, client: FlaskClient) -> None:
             ).one()
 
 
+def test_create_blacklisted_url(app: Flask, client: FlaskClient) -> None:
+    close_db()
+    response = client.post("/urls/", json={"url": "http://localhost:5000/A1b2C3d"})
+    assert response.status_code == 400
+    with pytest.raises(NoResultFound):
+        close_db()
+        with closing(get_db()) as conn:
+            conn.execute(
+                text(
+                    """
+                    SELECT url, short_path, created_at, clicks
+                    FROM urls
+                    WHERE url = :url
+                    """
+                ),
+                {"url": "http://localhost:5000/A1b2C3d"},
+            ).one()
+
+
 def test_create_url_exists(app: Flask, client: FlaskClient) -> None:
     close_db()
     with closing(get_db()) as conn:

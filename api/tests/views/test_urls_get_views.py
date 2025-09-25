@@ -21,7 +21,7 @@ def test_get(app: Flask, client: FlaskClient) -> None:
         )
         conn.commit()
         response = client.get("/urls/A1b2C3d")
-        assert response.status_code == 302
+        assert response.status_code == 301
     close_db()
     with closing(get_db()) as conn:
         clicks = conn.execute(
