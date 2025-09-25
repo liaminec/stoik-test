@@ -1,29 +1,43 @@
-import os
+from contextlib import closing
+from typing import Generator, Any
 
 import pytest
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
+from flask.testing import FlaskClient
+from sqlalchemy import text
 
-from urls import urls_bp
+from flaskr import create_app
+from flaskr.db import get_db, close_db
 
 
-@pytest.fixture(name="app")
-def app_fixture():
-    app = Flask(__name__)
-    db = SQLAlchemy()
-    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DB_URL")
-    db.init_app(app)
-    app.register_blueprint(urls_bp)
+@pytest.fixture(name="app", scope="session")
+def app_fixture() -> Generator[Flask, Any, None]:
+    app = create_app()
     app.config.update({"TESTING": True})
 
     yield app
 
-    conn = db.engine.connect()
-    conn.execute("DELETE FROM urls")
-    conn.commit()
-    conn.close()
-
 
 @pytest.fixture()
-def client(app):
+def client(app) -> FlaskClient:
     return app.test_client()
+
+
+@pytest.fixture(autouse=True)
+def invalidated_conn(app: Flask) -> Generator[None, Any, None]:
+    with app.app_context():
+        yield
+
+
+@pytest.fixture(autouse=True)
+def clear_db(app: Flask) -> Generator[None, Any, None]:
+    with app.app_context():
+        close_db()
+        with closing(get_db()) as conn:
+            conn.execute(text("DELETE FROM urls"))
+            conn.commit()
+        yield
+        close_db()
+        with closing(get_db()) as conn:
+            conn.execute(text("DELETE FROM urls"))
+            conn.commit()
