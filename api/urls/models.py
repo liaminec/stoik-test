@@ -1,18 +1,19 @@
 from urllib.parse import urlparse
 
-from pydantic import BaseModel, model_validator
+from pydantic import BaseModel, model_validator, field_validator
 
 
 class UrlCreate(BaseModel):
     url: str
 
-    @model_validator(mode="after")
-    def validate_url(self) -> "UrlCreate":
-        result = urlparse(self.url)
+    @field_validator("url", mode="after")
+    @classmethod
+    def validate_url(cls, value) -> "UrlCreate":
+        result = urlparse(value)
         is_valid = all([result.scheme, result.netloc])
         if not is_valid:
-            raise ValueError("The url is not valid")
-        return self
+            raise ValueError("The url is invalid")
+        return value
 
 
 class ShortPath(BaseModel):
